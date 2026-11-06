@@ -1,0 +1,9 @@
+{
+  "AbioticFactor/Binaries/Win64/dwmapi.dll": "2e5092982afb5ecc75a36d71d3e620819e4d6573b285b29b9b4604b12d10d4bf",
+  "AbioticFactor/Binaries/Win64/ue4ss/UE4SS.dll": "c253d52bda795bc9f76181045d9182c5b5851697ea5cf8ddde552bf65c124c72",
+  "AbioticFactor/Binaries/Win64/ue4ss/LICENSE": "99e1d8f8b7cb68e8b2313380ae3b0c8115e39dfbc443fcf21fd67ab74ce1d57e",
+  "AbioticFactor/Binaries/Win64/ue4ss/UE4SS_SDK_Backends/UE4SS.json": "6b8c1725ff59a318b812d5952f63107778b4ceb22b882b297a3666ee9e06c8ff",
+  "AbioticFactor/Binaries/Win64/ue4ss/UE4SS-settings.ini": "a95bde245885788df458ce54e4aa3bcba9ac792ea5305bbc0d1d587bbb1c97c9",
+  "AbioticFactor/Binaries/Win64/ue4ss/MemberVariableLayout.ini": "d320c92863a38fb8aa40f86a3f9341599f580e3c3c77f2d881fc6be2fc12d623",
+  "AbioticFactor/Binaries/Win64/ue4ss/VTableLayout.ini": "cc1136ea3ec02e634e93b0c05c6714318926f23924d7a9dffaad9c2c842370a9"
+}

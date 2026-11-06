@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+dist/
+.FeralFoxUpdater/
+FeralFox-install.json
+*.sav
+*.log
+*.dmp
+player-option.txt
+character-options-*.txt
+network-server-id.txt
+fox-status.txt
