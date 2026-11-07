@@ -10,13 +10,13 @@ Get downloads from [Releases](https://github.com/Craditz/Abiotic-Feral-Fox/relea
 
 Recommended: download **FeralFox-Updater.zip**, extract its two files beside `AbioticFactor.exe` (Steam > Manage > Browse local files), fully close the game, then double-click **Update-FeralFox.cmd**. It asks before installation, downloads a published version, verifies SHA-256 and individual files, backs up replacements and restores them if installation fails. It installs the tested UE4SS loader when absent. Normally writable Steam libraries need no administrator rights.
 
-**Upgrading from 0.16.3:** replace both updater files with the copy from the 0.16.4 release before running the updater. Version 1.0.1 adds support for the new lookup module.
+**Using updater 1.0.0:** replace both updater files with the current download before installing 0.16.5. Updater 1.0.1 supports the lookup module and can install this release directly.
 
 Run the same file for future updates. In PowerShell, `./FeralFox-Updater.ps1 -CheckOnly` checks without installing; `-Repair` reinstalls the current release. Experimental prereleases are included. It never updates an open game or runs automatically in the background. It installs release assets, never arbitrary branch contents.
 
 Existing config, character selections, host identity, saves and other mods are preserved. Only the FeralFoxPrototype entry is enabled in mods.txt. Replaced files are backed up under `.FeralFoxUpdater/backups`. Linked/junction installation paths are rejected. Keep backups until you have checked the update.
 
-For a manual new installation, extract **FeralFox-0.16.4-with-UE4SS-Windows.zip** into the game folder. It includes default loader, config and mod-list files. Existing installations can use the updater to preserve their settings. The manual **update ZIP** requires UE4SS. All three `FeralFoxCore_2_P` asset files must stay together.
+For a manual new installation, extract **FeralFox-0.16.5-with-UE4SS-Windows.zip** into the game folder. It includes default loader, config and mod-list files. Existing installations can use the updater to preserve their settings. The manual **update ZIP** requires UE4SS. All three `FeralFoxCore_2_P` asset files must stay together.
 
 ## Existing local sounds
 

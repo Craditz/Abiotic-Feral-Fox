@@ -1,5 +1,9 @@
 # Validation and limits
 
+## 0.16.5
+
+This update addresses the 0.16.4 frame rate regression in gameplay and Customization. The shared resolver uses Unreal's native path lookup on cache misses. Repeat lookups use a bounded cache of weak object references. The cooked containers and protocol 3 are carried forward byte for byte. The owner requested that testing be skipped, so frame rate and crash behavior remain unverified in game.
+
 ## 0.16.4
 
 The protocol 3 Blueprint was compiled and cooked. The Lua and cooked asset files in the GitHub packages match the local 0.16.4 candidate. The candidate replaces the object lookup path implicated in the UE4SS crash and adds host-controlled Fox collision in multiplayer. The owner requested that testing be skipped. Crash behavior, multiplayer collision and updater 1.0.1 remain untested.

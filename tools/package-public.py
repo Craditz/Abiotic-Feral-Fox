@@ -3,7 +3,7 @@ from pathlib import Path
 import argparse,hashlib,json,zipfile
 ROOT=Path(__file__).resolve().parents[1]
 REPO='Craditz/Abiotic-Feral-Fox'
-VERSION='0.16.4'
+VERSION='0.16.5'
 PREFIX='AbioticFactor/Binaries/Win64/'
 SCRIPTS=PREFIX+'ue4ss/Mods/FeralFoxPrototype/Scripts/'
 def sha(data):return hashlib.sha256(data).hexdigest()

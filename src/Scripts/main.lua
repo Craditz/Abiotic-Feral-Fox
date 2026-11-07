@@ -1,4 +1,4 @@
--- FeralFoxPrototype 0.16.4: scoped object lookup and host-controlled fox collision.
+-- FeralFoxPrototype 0.16.5: native object lookup with a bounded weak cache.
 -- Requires FeralFoxCore_2_P.pak/.utoc/.ucas. Collision size is configured outside the game.
 -- F6: fox + first person on/off. F7: optional external inspection camera.
 local findObject = require('object_lookup')
@@ -1099,7 +1099,7 @@ RemoteVisuals.start({load=loadAsset,log=log,states=Network.peerStates or Network
 if Config.developer_controls~=true and not IsKeyBindRegistered(Key.F8)then
     RegisterKeyBind(Key.F8,function()ExecuteInGameThread(function()
         local controller,pawn=localPlayer(true)
-        local lines={'Feral Fox 0.16.4 network diagnostic',
+        local lines={'Feral Fox 0.16.5 network diagnostic',
             'Local gameplay pawn: '..tostring(valid(pawn)),
             'Profile bound: '..tostring(currentProfile~=nil),
             'Selected Fox: '..tostring(choice.enabled),
@@ -1118,7 +1118,7 @@ if Config.developer_controls~=true and not IsKeyBindRegistered(Key.F8)then
         local f=io.open(scriptFolder..'fox-status.txt','wb');if f then f:write(report);f:close()end
     end)end)
 end
-log('Loaded v0.16.4 public core candidate; selected species '..(choice.enabled and 'Fox' or 'Human')..'. Species: character creation / Fox tab in Customization. Inspection controls '..(Config.inspection_controls~=false and 'ON' or 'OFF')..'; developer controls '..(Config.developer_controls==true and 'ON' or 'OFF')..'.')
+log('Loaded v0.16.5 public core candidate; selected species '..(choice.enabled and 'Fox' or 'Human')..'. Species: character creation / Fox tab in Customization. Inspection controls '..(Config.inspection_controls~=false and 'ON' or 'OFF')..'; developer controls '..(Config.developer_controls==true and 'ON' or 'OFF')..'.')
 LoopInGameThreadWithDelay(500,supervise)
 ExecuteInGameThread(function()
     local ok = attempt("startup API preflight", preflight)
