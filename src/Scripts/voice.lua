@@ -1,3 +1,4 @@
+local findObject = require('object_lookup')
 -- Local cosmetic RiME voice. Never changes health, inventory, replication or game audio settings.
 local M={}
 local Catalog=require('voice_catalog')
@@ -11,7 +12,7 @@ local function valid(o)
     if o==nil then return false end
     local ok,v=pcall(function()return o:IsValid()end);return ok and v==true
 end
-local function resolve(p) return p and StaticFindObject(p) or nil end
+local function resolve(p) return p and findObject(p) or nil end
 local function path(o) return o:GetFullName():gsub('^%S+ ','') end
 local muted={}
 local hooksReady=false

@@ -1,3 +1,4 @@
+local findObject = require('object_lookup')
 -- Native UMG integration candidate. Offline tested; native layout/hook validation pending.
 -- Cross-tick state contains object paths, never retained UObject handles.
 local Appearance=require('appearance')
@@ -16,7 +17,7 @@ local function valid(o)
     return ok and result==true
 end
 local function path(o) return valid(o) and o:GetFullName():match('^[^ ]+ (.+)$') or nil end
-local function resolve(p) return p and StaticFindObject(p) or nil end
+local function resolve(p) return p and findObject(p) or nil end
 local function field(o,key) local ok,value=pcall(function()return o[key]end);if ok then return value end end
 local function is(o,class) return valid(o) and o:IsA(class) end
 local function visible(widget)
@@ -56,7 +57,7 @@ function M.isCommittingCreation(widget)
 end
 local function make(kind,outer)
     serial=serial+1
-    local widget=StaticConstructObject(StaticFindObject('/Script/UMG.'..kind),outer,FName('FeralFox_'..kind..'_'..serial))
+    local widget=StaticConstructObject(findObject('/Script/UMG.'..kind),outer,FName('FeralFox_'..kind..'_'..serial))
     assert(valid(widget),'Could not construct '..kind)
     return widget
 end
@@ -116,7 +117,7 @@ local function combo(outer,box,label,rows,id,template)
         widget.ItemStyle=template.ItemStyle
     end
     local styled,styleError=pcall(function()
-        local white=StaticFindObject('/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture')
+        local white=findObject('/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture')
         if not valid(white) then white=LoadAsset('/Engine/EngineResources/WhiteSquareTexture.WhiteSquareTexture') end
         assert(valid(white),'Native white UI texture unavailable')
         local function opaque(brush,color)
@@ -356,7 +357,7 @@ local function installHooks(widget,mode)
         {'BackAndSaveCustomization','BndEvt__W_MainMenuButton_BackAndSave_K2Node_ComponentBoundEvent_0_ButtonPressed__DelegateSignature'}
     for _,name in ipairs(names) do
         local full=class..':'..name
-        if not hooked[full] and valid(StaticFindObject(full)) then
+        if not hooked[full] and valid(findObject(full)) then
             local ok,err=pcall(RegisterHook,full,function(context)
                 local current=context:get()
                 if is(current,class) then commit(current) end

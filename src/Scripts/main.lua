@@ -1,6 +1,7 @@
--- FeralFoxPrototype 0.16.3: bounded peer discovery, native smoothing and connection cleanup.
--- Requires FeralFoxAssets_P.pak/.utoc/.ucas. Experimental size is configured outside the game.
+-- FeralFoxPrototype 0.16.4: scoped object lookup and host-controlled fox collision.
+-- Requires FeralFoxCore_2_P.pak/.utoc/.ucas. Collision size is configured outside the game.
 -- F6: fox + first person on/off. F7: optional external inspection camera.
+local findObject = require('object_lookup')
 local PREFIX = "[FeralFoxPrototype] "
 local Appearance = require('appearance')
 local MESH = Appearance.mesh
@@ -74,7 +75,7 @@ end
 
 local function resolve(objectPath)
     if not objectPath then return nil end
-    local object = StaticFindObject(objectPath)
+    local object = findObject(objectPath)
     if valid(object) then return object end
     return nil
 end
@@ -101,7 +102,7 @@ local function recoverSavedFloor(pawn)
     local p=pawn:K2_GetActorLocation()
     local half=pawn.CapsuleComponent:GetScaledCapsuleHalfHeight()
     local hit,color={},{R=0,G=0,B=0,A=0}
-    local library=StaticFindObject('/Script/Engine.Default__KismetSystemLibrary')
+    local library=findObject('/Script/Engine.Default__KismetSystemLibrary')
     local found=library:SphereTraceSingle(pawn,{X=p.X,Y=p.Y,Z=p.Z+8},
         {X=p.X,Y=p.Y,Z=p.Z-half-8},8,0,false,{},0,hit,true,color,color,0)
     if found and hit.ImpactNormal.Z>0.65 then
@@ -110,6 +111,23 @@ local function recoverSavedFloor(pawn)
         -- native 2.15 cm floor gap instead of scaling that penetration deeper.
         local floor=hit.ImpactPoint.Z+2.15
         if floor>p.Z-half+4 and floor<p.Z+2 then return floor end
+    end
+end
+
+local function resizeNetworkPawn(pawn, scale, firstShrink)
+    if pawn.IsSleeping or pawn.IsSittingInSeat then
+        -- Furniture already owns the pawn's center position.
+        pawn:SetActorScale3D(scale)
+    else
+        setPhysicalScale(pawn, scale, firstShrink and recoverSavedFloor(pawn) or nil)
+    end
+end
+
+local function updateVisualScale(pawn, visual)
+    local scale = FOX_SCALE / actorScale(pawn)
+    if state.visualScale ~= scale then
+        visual:SetRelativeScale3D({X=scale, Y=scale, Z=scale})
+        state.visualScale = scale
     end
 end
 
@@ -419,13 +437,11 @@ local function updateSpecial(controller,pawn,visual,mode)
                     -- again by preserving the smaller capsule bottom.
                     pawn:SetActorScale3D(state.originalScale)
                 else setPhysicalScale(pawn,state.originalScale) end
-                local scale=FOX_SCALE/actorScale(pawn)
-                visual:SetRelativeScale3D({X=scale,Y=scale,Z=scale})
+                updateVisualScale(pawn, visual)
             end
         elseif state.foxPhysicalScale and math.abs(actorScale(pawn)-state.foxPhysicalScale.Z)>0.0001 then
             setPhysicalScale(pawn,state.foxPhysicalScale,recoverSavedFloor(pawn))
-            local scale=FOX_SCALE/actorScale(pawn)
-            visual:SetRelativeScale3D({X=scale,Y=scale,Z=scale})
+            updateVisualScale(pawn, visual)
         end
         if not inspect and (not state.special or state.special=='seat') then
             restoreNativeCamera(state,pawn)
@@ -502,6 +518,7 @@ local function tick()
             return
         end
         assert(valid(visual), 'Fox visual component expired')
+        updateVisualScale(pawn, visual)
         local mode=specialMode(pawn)
         local voiceVelocity=pawn:GetVelocity()
         Voice.update(state.voice,pawn,mode,state.nativeAction,math.sqrt(voiceVelocity.X^2+voiceVelocity.Y^2))
@@ -510,8 +527,7 @@ local function tick()
             if not readyForControl(pawn) then updateSpecial(controller,pawn,visual,state.special);return end
             if state.foxPhysicalScale then
                 setPhysicalScale(pawn,state.foxPhysicalScale,recoverSavedFloor(pawn))
-                local scale=FOX_SCALE/actorScale(pawn)
-                visual:SetRelativeScale3D({X=scale,Y=scale,Z=scale})
+                updateVisualScale(pawn, visual)
             end
             local inspect=state.special=='emote' and state.rearView and not state.emoteForcedCamera
             state.special=nil
@@ -686,7 +702,7 @@ enable = function()
             setPhysicalScale(pawn,state.foxPhysicalScale,floor)
             if floor then log('Persistent fox: recovered saved capsule center against the floor.') end
             log('Experimental fox collision enabled. F6 restores human size; leave tight gaps before disabling, or use native Unstuck.')
-        else log('Small collision skipped outside standalone. Cosmetic fox remains available.') end
+        end
     end
 
     local identity = {
@@ -711,8 +727,7 @@ enable = function()
     log("Fox mesh assigned and verified: " .. path(assignedMesh))
     visual:K2_SetRelativeLocation(vec(pawn.Mesh.RelativeLocation), false, outputTrace('main.lua:653:transform'), true)
     visual:K2_SetRelativeRotation(rot(pawn.Mesh.RelativeRotation), false, outputTrace('main.lua:654:transform'), true)
-    local visualScale=FOX_SCALE/actorScale(pawn)
-    visual:SetRelativeScale3D({X = visualScale, Y = visualScale, Z = visualScale})
+    updateVisualScale(pawn, visual)
     visual:PlayAnimation(idle, true)
     state.animation = 'idle'
     visual:SetVisibility(true, false)
@@ -1067,7 +1082,14 @@ RegisterLoadMapPreHook(function()
     for p,saved in pairs(retired) do cleanupState(saved,'map transition'); retired[p]=nil end
     candidate,stableCandidate,failedPawn=nil,0,nil
 end)
-Network.start({folder=scriptFolder,load=loadAsset,log=log,choice=function()
+Network.start({folder=scriptFolder,load=loadAsset,log=log,resize=resizeNetworkPawn,
+    collisionFactor=function()
+        local factor = Config.collision_scale
+        if Config.small_collision and type(factor) == 'number' and factor >= 0.25 and factor <= 1 then
+            return factor
+        end
+    end,
+    choice=function()
     if currentProfile and currentProfile:sub(1,11)=='network-v1:'then
         local controller,pawn=localPlayer(true)
         if Network.identity(controller,pawn)==currentProfile then return Profiles.copy(choice)end
@@ -1077,7 +1099,7 @@ RemoteVisuals.start({load=loadAsset,log=log,states=Network.peerStates or Network
 if Config.developer_controls~=true and not IsKeyBindRegistered(Key.F8)then
     RegisterKeyBind(Key.F8,function()ExecuteInGameThread(function()
         local controller,pawn=localPlayer(true)
-        local lines={'Feral Fox 0.16.3 network diagnostic',
+        local lines={'Feral Fox 0.16.4 network diagnostic',
             'Local gameplay pawn: '..tostring(valid(pawn)),
             'Profile bound: '..tostring(currentProfile~=nil),
             'Selected Fox: '..tostring(choice.enabled),
@@ -1087,6 +1109,7 @@ if Config.developer_controls~=true and not IsKeyBindRegistered(Key.F8)then
             lines[#lines+1]='Network scope available: '..tostring(Network.scope(controller)~=nil)
             lines[#lines+1]='Server profile available: '..tostring(Network.identity(controller,pawn)~=nil)
             lines[#lines+1]='Server accepted selection: '..tostring(Network.accepted(controller,choice))
+            lines[#lines+1]='Applied pawn scale: '..tostring(actorScale(pawn))
         end
         local count=0;for _ in pairs(Network.states())do count=count+1 end
         lines[#lines+1]='Accepted player states visible: '..count
@@ -1095,7 +1118,7 @@ if Config.developer_controls~=true and not IsKeyBindRegistered(Key.F8)then
         local f=io.open(scriptFolder..'fox-status.txt','wb');if f then f:write(report);f:close()end
     end)end)
 end
-log('Loaded v0.16.3 public core candidate; selected species '..(choice.enabled and 'Fox' or 'Human')..'. Species: character creation / Fox tab in Customization. Inspection controls '..(Config.inspection_controls~=false and 'ON' or 'OFF')..'; developer controls '..(Config.developer_controls==true and 'ON' or 'OFF')..'.')
+log('Loaded v0.16.4 public core candidate; selected species '..(choice.enabled and 'Fox' or 'Human')..'. Species: character creation / Fox tab in Customization. Inspection controls '..(Config.inspection_controls~=false and 'ON' or 'OFF')..'; developer controls '..(Config.developer_controls==true and 'ON' or 'OFF')..'.')
 LoopInGameThreadWithDelay(500,supervise)
 ExecuteInGameThread(function()
     local ok = attempt("startup API preflight", preflight)

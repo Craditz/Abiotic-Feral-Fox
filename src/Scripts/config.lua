@@ -18,7 +18,8 @@ return {
     fox_voice_hurt_cooldown_seconds = 3,
     fox_voice_combat_chance = 0.15, -- Occasional native unarmed attack only.
     fox_voice_combat_cooldown_seconds = 12,
-    -- Experimental, standalone only. False keeps the game's human collision.
+    -- Experimental. The host's setting controls multiplayer collision.
+    -- False keeps the game's human collision.
     -- WARNING: changing species or disabling this setting in a fox-only gap
     -- may get you stuck; leave the gap first or use the game's Unstuck option.
     small_collision = true,

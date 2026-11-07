@@ -1,5 +1,5 @@
 {
-  "version": "0.16.3",
+  "version": "0.16.4",
   "engine": "5.4.4",
   "assets": [
     "AN_Fox_Bite",
@@ -30,7 +30,7 @@
     "AN_Fox_Sleep",
     "AN_Fox_Swim",
     "AN_Fox_Walk",
-    "BP_FeralFoxNetworkState",
+    "BP_FeralFoxNetworkStateV3",
     "MI_Fox_Coat",
     "MI_Fox_Crease",
     "MI_Fox_Tail",
@@ -615,8 +615,6 @@
     "AN_Fox_Swim.uexp": "763390f280ab11f429b4adbf53c98fcc5b983623a44e14f7e62b81219596223a",
     "AN_Fox_Walk.uasset": "718fb38f9ec2c97ebd70e3d2ae78f1b27f40fa3a78b20e46d854b7e7f8587cd7",
     "AN_Fox_Walk.uexp": "68e570173017dbef599044d75f9c020324d483315bf900b45e76e2e29c28d169",
-    "BP_FeralFoxNetworkState.uasset": "e77c7eb840b1f5a379870667b16151a25de373367d58605dd24393e38ae00066",
-    "BP_FeralFoxNetworkState.uexp": "e6759adb756898959645a2e3227606e19154df595efbe8e81a01d2a6f5e87bc8",
     "MI_Fox_Coat.uasset": "7c46c6e6e7791fb47337c127db292f234ee0ca3a0d8a609fd4c200993cff6dc2",
     "MI_Fox_Coat.uexp": "f0ce703bd0d381cfcc978d7d7be6db29bebc875a6ef1ce157dd3e17f2fe01ed0",
     "MI_Fox_coat_00.uasset": "1430543afcc88669db49018054bd7bf78a529b7b111287fa064a6f07c125e653",
@@ -1912,7 +1910,9 @@
     "T_FoxThumb_Coat_27.uasset": "94ae37eb0499725b1fbc7651c7be74aea1b8bdad4ff285e4dbf0fb34f49f664a",
     "T_FoxThumb_Coat_27.uexp": "8590faf85bd21fbfd5a0914b2f1d23f47f9a7933759292cf26743e4501b12f7b",
     "T_FoxThumb_Coat_28.uasset": "0756c1412e641e9e24398c10ff827f4fd77b073a30f99fa36d545708310dcf93",
-    "T_FoxThumb_Coat_28.uexp": "dbff6f1ac6ca51bdaa66a941ab967b5105fb1d3c3cbd5a823ae48a5e681e0529"
+    "T_FoxThumb_Coat_28.uexp": "dbff6f1ac6ca51bdaa66a941ab967b5105fb1d3c3cbd5a823ae48a5e681e0529",
+    "BP_FeralFoxNetworkStateV3.uasset": "7c6281d431a2808c82c153d0cbab4345730c79afd0abcf17b112f04fb5fe229f",
+    "BP_FeralFoxNetworkStateV3.uexp": "dfdc368ab55e8692da2e0149296d6ea9bbaf58a74e829c7d64a8228429589514"
   },
   "files": [
     {
@@ -1922,13 +1922,13 @@
     },
     {
       "name": "FeralFoxCore_2_P.utoc",
-      "bytes": 213320,
-      "sha256": "c845015fc001ba73ca107bbce427f747f18e7960aee7df26d81062186f57b893"
+      "bytes": 213322,
+      "sha256": "9ebba51a6f171c6fa1c6b319ddf3bde5a2590c1ee1daa2c550e3ff3ed673bd5c"
     },
     {
       "name": "FeralFoxCore_2_P.ucas",
-      "bytes": 711669240,
-      "sha256": "20037d24cf6afddcbe078b81e2e6a2f79fd2b1184f6ed3967ecff6efd830f6e3"
+      "bytes": 711669481,
+      "sha256": "403f95d261401173a1503cf7db7ff93a7c1569e379a1a20808d0de2aaad455a4"
     }
   ],
   "native_assets_included": false,

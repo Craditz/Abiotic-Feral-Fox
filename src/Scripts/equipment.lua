@@ -1,3 +1,4 @@
+local findObject = require('object_lookup')
 -- Cosmetic mouth-held item proxies. Native item actors and gameplay stay intact.
 local M={}
 local function outputTrace(label)
@@ -15,7 +16,7 @@ M.required={
 }
 local function valid(o) local ok,v=pcall(function() return o:IsValid() end); return ok and v==true end
 local function path(o) return (o:GetFullName():gsub('^%S+ ','')) end
-local function resolve(p) if not p then return nil end; local o=StaticFindObject(p); if valid(o) then return o end end
+local function resolve(p) if not p then return nil end; local o=findObject(p); if valid(o) then return o end end
 local function vec(v) return {X=v.X,Y=v.Y,Z=v.Z} end
 local function log(s) print('[FeralFoxEquipment] '..s..'\n') end
 local function optional(f) local ok,v=pcall(f); if ok then return v end end

@@ -1,3 +1,4 @@
+local findObject = require('object_lookup')
 -- Read only: no world save modification or actor-name/level-name fallback.
 local M={}
 local networkResolver
@@ -14,7 +15,7 @@ function M.world()
 end
 function M.resolve(controller,pawn)
     if not valid(controller) or not controller:IsLocalPlayerController() or not valid(pawn) or not valid(controller.PlayerState) then return end
-    local library=StaticFindObject('/Script/Engine.Default__KismetSystemLibrary')
+    local library=findObject('/Script/Engine.Default__KismetSystemLibrary')
     if not valid(library)then return end
     if not library:IsStandalone(pawn)then
         if networkResolver then return networkResolver(controller,pawn)end

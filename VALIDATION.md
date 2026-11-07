@@ -1,4 +1,10 @@
-# Validation and limits: 0.16.3
+# Validation and limits
+
+## 0.16.4
+
+The protocol 3 Blueprint was compiled and cooked. The Lua and cooked asset files in the GitHub packages match the local 0.16.4 candidate. The candidate replaces the object lookup path implicated in the UE4SS crash and adds host-controlled Fox collision in multiplayer. The owner requested that testing be skipped. Crash behavior, multiplayer collision and updater 1.0.1 remain untested.
+
+## 0.16.3
 
 The public core retains 0.16.2 behavior except version labels and graceful detection of optional existing local sounds. All 554 non-audio cooked assets retain their exact 0.16.2 cooked-file hashes. All 41 SoundWave assets and their associated files are excluded. The core uses a different IoStore container ID and a higher numbered patch filename so the prior base pack can remain for its local sounds. UE 5.4 mounting code applies that numbered priority to both pak and IoStore mounting. This establishes the intended mount order from engine source, not native game acceptance of the new two-container arrangement.
 

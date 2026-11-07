@@ -1,3 +1,4 @@
+local findObject = require('object_lookup')
 -- Server-accepted peer cosmetics. Engine attachment inherits native mesh
 -- smoothing; player discovery is slower than animation/equipment updates.
 local M={}
@@ -11,7 +12,7 @@ local options,frame,lastError,lastMembership=nil,0,nil,nil
 local function valid(o)local ok,v=pcall(function()return o:IsValid()end);return ok and v==true end
 local function path(o)return o:GetFullName():gsub('^%S+ ','')end
 local function optional(fn)local ok,v=pcall(fn);if ok then return v end end
-local function resolve(id)if not id then return end;local o=StaticFindObject(id);if valid(o)then return o end end
+local function resolve(id)if not id then return end;local o=findObject(id);if valid(o)then return o end end
 local function vec(v)return {X=v.X,Y=v.Y,Z=v.Z}end
 local function rot(v)return {Pitch=v.Pitch,Yaw=v.Yaw,Roll=v.Roll}end
 local function signature(v)return v.coat..':'..v.eyes..':'..v.paws end

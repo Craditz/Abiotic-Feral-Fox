@@ -1,3 +1,4 @@
+local findObject = require('object_lookup')
 -- Local cosmetic observers. No gameplay calls, input synthesis or replicated state.
 local M={}
 local active,hooked=nil,{}
@@ -101,7 +102,7 @@ local function prepareHooks(log)
         {'Client_DisplayNewItemPickup','pickup'},{'Client_ItemCrafted','craft'},
         {'Local_Try_StartInteraction','interaction'},{'Local_BeginPlayEmote','emote'}}) do
         local name,key=entry[1],entry[2]
-        if not hooked[name] and valid(StaticFindObject(prefix..name)) then
+        if not hooked[name] and valid(findObject(prefix..name)) then
             local ok,err=pcall(RegisterHook,prefix..name,function(context,...)
                 local s=active
                 if not s or (s.blocked and key~='emote') then return end
@@ -157,7 +158,7 @@ function M.update(s,pawn,mode,montage,token,speed)
     s.montageToken=token
     if s.pendingDoor then
         local pending=s.pendingDoor
-        local target=StaticFindObject(pending.id)
+        local target=findObject(pending.id)
         local signature=optional(function()return doorState(target)end)
         if now>pending.untilTime or not signature then s.pendingDoor=nil
         elseif signature~=pending.before then M.emit(s,'door',now);s.pendingDoor=nil end

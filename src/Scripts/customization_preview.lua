@@ -1,3 +1,4 @@
+local findObject = require('object_lookup')
 -- Menu-only preview. Never creates or moves a gameplay actor.
 local Appearance=require('appearance')
 local M={}
@@ -7,7 +8,7 @@ local function valid(o)
     return ok and value==true
 end
 local function path(o) return valid(o) and o:GetFullName():match('^[^ ]+ (.+)$') end
-local function resolve(p) return p and StaticFindObject(p) end
+local function resolve(p) return p and findObject(p) end
 local function vector(v) return {X=v.X,Y=v.Y,Z=v.Z} end
 local function rotation(v) return {Pitch=v.Pitch,Yaw=v.Yaw,Roll=v.Roll} end
 function M.clear(state)
@@ -47,7 +48,7 @@ function M.update(state,widget,enabled,look,options)
         local identity={Rotation={X=0,Y=0,Z=0,W=1},Translation={X=0,Y=0,Z=0},Scale3D={X=1,Y=1,Z=1}}
         local mesh=options.load(options.mesh)
         local idle=options.load(options.idle)
-        component=character:AddComponentByClass(StaticFindObject('/Script/Engine.SkeletalMeshComponent'),false,identity,false)
+        component=character:AddComponentByClass(findObject('/Script/Engine.SkeletalMeshComponent'),false,identity,false)
         assert(valid(component),'Menu preview component creation failed')
         state.preview=path(component)
         state.previewNativeMesh=path(native)
@@ -95,9 +96,9 @@ function M.update(state,widget,enabled,look,options)
                     if length<1 then dx,dy,length=1,0,1 end
                     local location={X=floor.X+dx/length*230,Y=floor.Y+dy/length*230,Z=floor.Z+100}
                     local target={X=floor.X,Y=floor.Y,Z=floor.Z+40}
-                    local mathLibrary=StaticFindObject('/Script/Engine.Default__KismetMathLibrary')
+                    local mathLibrary=findObject('/Script/Engine.Default__KismetMathLibrary')
                     local viewRotation=mathLibrary:FindLookAtRotation(location,target)
-                    camera=component:GetWorld():SpawnActor(StaticFindObject('/Script/Engine.CameraActor'),location,{Pitch=0,Yaw=0,Roll=0})
+                    camera=component:GetWorld():SpawnActor(findObject('/Script/Engine.CameraActor'),location,{Pitch=0,Yaw=0,Roll=0})
                     assert(valid(camera),'Could not create fox menu camera')
                     -- Apply a reflected Rotator setter after spawning. Do not
                     -- depend on the Lua SpawnActor helper's rotation conversion.
@@ -123,7 +124,7 @@ function M.update(state,widget,enabled,look,options)
         local head=component:GetSocketLocation(FName('Head'))
         local dx,dy=head.X-origin.X,head.Y-origin.Y
         if dx*dx+dy*dy>1 then
-            local library=StaticFindObject('/Script/Engine.Default__KismetMathLibrary')
+            local library=findObject('/Script/Engine.Default__KismetMathLibrary')
             local current=library:FindLookAtRotation(origin,head)
             local view=camera:K2_GetActorRotation()
             state.previewYawOffset=(view.Yaw+135-current.Yaw+180)%360-180

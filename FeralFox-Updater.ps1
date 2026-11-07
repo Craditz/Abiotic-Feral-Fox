@@ -1,7 +1,7 @@
 param([string]$GameRoot=$PSScriptRoot,[switch]$CheckOnly,[switch]$Yes,[switch]$Repair)
 $ErrorActionPreference='Stop'
 $FFRepository='Craditz/Abiotic-Feral-Fox'
-$FFVersion='1.0.0'
+$FFVersion='1.0.1'
 
 function Get-FFHash([string]$Path) { (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() }
 function Assert-FFGameClosed {
@@ -28,7 +28,7 @@ function Test-FFPayloadPath([string]$Name) {
     if ($Name -match '^FeralFox-Docs/[A-Za-z0-9_.-]+\.(md|txt|json)$') {return $true}
     if ($Name -match '^AbioticFactor/Content/Paks/~mods/FeralFoxCore_2_P\.(pak|utoc|ucas)$') {return $true}
     if ($Name -match '^AbioticFactor/Binaries/Win64/(dwmapi\.dll|ue4ss/(UE4SS\.dll|LICENSE|UE4SS-settings\.ini|MemberVariableLayout\.ini|VTableLayout\.ini|UE4SS_SDK_Backends/UE4SS\.json|Mods/mods\.txt))$') {return $true}
-    if ($Name -match '^AbioticFactor/Binaries/Win64/ue4ss/Mods/FeralFoxPrototype/Scripts/(main|network|remote_visuals|character_profiles|character_identity|emotes|animation_state|actions|config|equipment|preferences|customization|customization_preview|appearance|appearance_catalog|voice|voice_catalog)\.lua$') {return $true}
+    if ($Name -match '^AbioticFactor/Binaries/Win64/ue4ss/Mods/FeralFoxPrototype/Scripts/(main|network|object_lookup|remote_visuals|character_profiles|character_identity|emotes|animation_state|actions|config|equipment|preferences|customization|customization_preview|appearance|appearance_catalog|voice|voice_catalog)\.lua$') {return $true}
     return $false
 }
 function Test-FFPreserve([string]$Name) {
@@ -85,7 +85,7 @@ function Write-FFFile([string]$Source,[string]$Destination) {
     [IO.Directory]::CreateDirectory((Split-Path -Parent $Destination)) | Out-Null
     Copy-Item -LiteralPath $Source -Destination $Destination -Force
 }
-function Install-FFPackage([string]$Root,[string]$Stage,[string]$Backup,$Package,[string]$Version) {
+function Install-FFPackage([string]$Root,[string]$Stage,[string]$Backup,$Package,[string]$Version,[int]$Protocol=2) {
     Assert-FFGameClosed
     $plan=New-Object 'System.Collections.Generic.List[object]'
     foreach ($property in $Package.files.PSObject.Properties) {
@@ -106,7 +106,7 @@ function Install-FFPackage([string]$Root,[string]$Stage,[string]$Backup,$Package
     $plan.Add(@{name=$modsName;destination=$modsPath;source=$modsStage;existed=(Test-Path -LiteralPath $modsPath)})
     $receiptPath=Get-FFSafePath $Root 'FeralFox-install.json'
     $receiptStage=Join-Path $Stage 'generated-receipt.json'
-    @{version=$Version;flavor='core';protocol=2;installed_utc=[DateTime]::UtcNow.ToString('o');backup=$Backup} | ConvertTo-Json | Set-Content -LiteralPath $receiptStage -Encoding UTF8
+    @{version=$Version;flavor='core';protocol=$Protocol;installed_utc=[DateTime]::UtcNow.ToString('o');backup=$Backup} | ConvertTo-Json | Set-Content -LiteralPath $receiptStage -Encoding UTF8
     $plan.Add(@{name='FeralFox-install.json';destination=$receiptPath;source=$receiptStage;existed=(Test-Path -LiteralPath $receiptPath)})
     [IO.Directory]::CreateDirectory($Backup) | Out-Null
     foreach ($item in $plan) {
@@ -170,6 +170,8 @@ function Invoke-FFUpdater([string]$Root,[bool]$Check,[bool]$Accept,[bool]$ForceR
         if ($asset.digest -match '^sha256:([a-f0-9]{64})$' -and (Get-FFHash $manifestPath) -cne $Matches[1]) {throw 'Release manifest digest mismatch.'}
         $manifest=Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
         if ($manifest.schema -ne 1 -or $manifest.version -cne $version -or $manifest.repository -cne $FFRepository -or $manifest.flavor -cne 'core') {throw 'Incompatible release manifest.'}
+        $protocol=if($null -eq $manifest.protocol){2}else{[int]$manifest.protocol}
+        if ($protocol -notin @(2,3)) {throw 'Unsupported network protocol. Download the current updater from GitHub Releases.'}
         $kind=if(Test-Path -LiteralPath (Join-Path $Root 'AbioticFactor/Binaries/Win64/ue4ss/UE4SS.dll')){'update'}else{'install'}
         $package=$manifest.packages.$kind
         $expectedName=if($kind -eq 'install'){"FeralFox-$version-with-UE4SS-Windows.zip"}else{"FeralFox-$version-update.zip"}
@@ -180,7 +182,7 @@ function Invoke-FFUpdater([string]$Root,[bool]$Check,[bool]$Accept,[bool]$ForceR
         $payload=Join-Path $stage 'payload';[IO.Directory]::CreateDirectory($payload) | Out-Null
         Expand-FFVerifiedPackage $zipPath $payload $package
         $backup=Get-FFSafePath $state ('backups/'+[DateTime]::UtcNow.ToString('yyyyMMdd-HHmmss')+'-'+$id)
-        Install-FFPackage $Root $payload $backup $package $version
+        Install-FFPackage $Root $payload $backup $package $version $protocol
     } finally {
         if ($lock) {$lock.Dispose()}
         if ($stage -and $stage.StartsWith($state+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase) -and (Test-Path -LiteralPath $stage)) {[IO.Directory]::Delete($stage,$true)}
